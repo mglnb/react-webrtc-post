@@ -31,7 +31,6 @@ class Socket {
         sessionStorage.setItem("me", id);
         resolve();
       });
-      socket.on("client-log", console.log);
 
       socket.on("data-channel offer", async data => {
         await DataChannel.makeRemoteConnection(data);
