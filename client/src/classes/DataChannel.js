@@ -7,6 +7,7 @@ export default new class DataChannel {
     this.channel = null;
     this.caller = null;
     this.receiver = null;
+
     this.resolve = null;
   }
 
@@ -44,7 +45,9 @@ export default new class DataChannel {
       });
     });
   }
-
+  /**
+   * @param {MessageEvent} ev
+   */
   appendMessage({ data }) {
     const $messages = document.getElementById("messages");
     $messages.insertAdjacentHTML("beforeend",`<p> ${this.receiver} falou: ${data} </p>`);

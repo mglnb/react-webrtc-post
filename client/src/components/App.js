@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import Socket, { socket } from "../classes/Socket";
 import "./App.css";
+import Socket, { socket } from "../classes/Socket";
 import DataChannel from "../classes/DataChannel";
 
 class App extends Component {
@@ -8,21 +8,21 @@ class App extends Component {
     users: [],
     me: null,
     channel: null,
-    message: "",
-    receiver: ""
+    receiver: "",
+
+    message: ""
   };
   async componentWillMount() {
-    socket.on("users", users => {
-      this.setState({ users });
-    });
-    socket.on("data-channel connected", () => {
-      setTimeout(() => {
-        this.setState({ channel: DataChannel.channel });
-      }, 300);
-    });
+    socket.on("users", users => this.setState({ users }));
+    socket.on("data-channel connected", () =>
+      setTimeout(() => this.setState({ channel: DataChannel.channel }), 300)
+    );
+
     await Socket.init();
+
     this.setState({ me: sessionStorage.getItem("me") });
   }
+
   handleCall = async e => {
     this.setState({
       receiver: e.target.innerText,
@@ -36,14 +36,15 @@ class App extends Component {
   sendMessage = e => {
     if (e.which === 13) {
       this.state.channel.send(this.state.message);
-      this.refs.messages.insertAdjacentHTML("beforeend",`<p>Você falou: ${this.state.message}</p>`);
+      this.refs.messages.insertAdjacentHTML(
+        "beforeend",
+        `<p>Você falou: ${this.state.message}</p>`
+      );
       this.setState({ message: "" });
     }
   };
 
-  setValue = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
+  setValue = e => this.setState({ [e.target.name]: e.target.value });
 
   render() {
     const { channel, me } = this.state;
@@ -59,7 +60,6 @@ class App extends Component {
           <div>
             <input
               type="text"
-              data-user={me}
               name="message"
               value={this.state.message}
               onChange={this.setValue}

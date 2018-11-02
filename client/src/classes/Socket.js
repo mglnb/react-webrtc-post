@@ -4,49 +4,57 @@ import DataChannel from "./DataChannel";
 /**
  * Classe que inicializa os eventos dos sockets e faz a conexão.
  * @export
- * @class Socket
  */
 class Socket {
   /**
    * Cria uma instancia de Socket e inicializa a conexão com o SocketIO.
-   * @memberof Socket
    */
   constructor() {
     this.socket = io("http://localhost:3000/");
-    this.userlist = [];
   }
 
   /**
    * Inicializa todos os eventos necessários.
-   * @memberof Socket
    */
   async bindEvents() {
     return new Promise(resolve => {
       const { socket } = this;
-      // Disparado assim que entra no site
-      socket.on("connect", () => {
-        console.log("conectado");
-      });
+      /**
+       * Quando conectar, salva o id na session storage
+       */
       socket.on("my-id", id => {
         sessionStorage.setItem("me", id);
         resolve();
       });
-
+      
+	    /**
+       * Quando o Peer B receber a oferta,
+       * chamará o makeRemoteConnection
+       */
       socket.on("data-channel offer", async data => {
         await DataChannel.makeRemoteConnection(data);
       });
+      
+      /**
+       * Quando o Peer A receber a resposta,
+       * chamará a setCallerRemoteDescription
+       */
       socket.on("data-channel answer", async data => {
         DataChannel.setCallerRemoteDescription(data);
       });
+      
+      /**
+       * Tanto o Peer A quanto Peer B irão 
+       * ficar adicionando IceCandidates
+       */
       socket.on("new-ice-candidate", data => {
-        DataChannel.handleNewIceCandidate(data)
+        DataChannel.handleNewIceCandidate(data);
       })
     });
   }
 
   /**
    * Inicializa a classe.
-   * @memberof Socket
    */
   async init() {
     await this.bindEvents();
@@ -55,4 +63,5 @@ class Socket {
 }
 const SocketInstance = new Socket();
 export default SocketInstance;
+
 export const socket = SocketInstance.socket;
